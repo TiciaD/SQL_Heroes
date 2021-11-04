@@ -89,38 +89,54 @@
     }
 
     // // Update
-    // function updateHero($id, $name, $tagline) {
-    //     echo "hello";
-    //     echo ("<h1>CREATE</h1><pre>" . $name. $tagline. $id . "</pre>");
+    function updateHero($id, $name, $tagline) {
 
-    //     $servername = "localhost";
-    //     $username = "root";
-    //     $password = "";
-    //     $dbname = "mySuperheroes";
-        
-    //     // Create connection
-    //     $conn = new mysqli($servername, $username, $password, $dbname);
-    //     // Check connection
-    //     if ($conn->connect_error) {
-    //         die("Connection failed: " . $conn->connect_error);
-    //     }
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "mySuperheroes";
 
-    //     $SQL = "SELECT * FROM heroes";
+        // Create connection
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
 
-    //     $conn;
-    //     if ($conn->query($SQL) === TRUE) {
-    //         echo "New Hero created successfully";
-    //         echo '<br>';
-    //     }
-    //     else {
-    //         echo "Error: " . $SQL . "<br>" . $conn->error;
-    //     }
+        $SQL = "UPDATE heroes SET about_me='$tagline', name='$name' WHERE heroes.id=$id";
 
-    //     mysqli_close($conn); 
-    // };
+        if ($conn->query($SQL) === TRUE) {
+            echo "Record updated successfully";
+        } else {
+            echo "Error updating record: " . $conn->error;
+        }
+
+        mysqli_close($conn); 
+    };
 
     // // Delete
-    // function deleteHero($name) {};
+    function deleteHero($id) {
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "mySuperheroes";
+
+        // Create connection
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // sql to delete a record
+        $SQL = "DELETE FROM heroes WHERE id = '$id'";
+
+        if ($conn->query($SQL) === TRUE) {
+            echo "Record deleted successfully";
+        } else {
+            echo "Error deleting record: " . $conn->error;
+        }
+    };
 
     // echo "end of script"
 
@@ -141,9 +157,11 @@
                 echo "display all heroes";
                 break;
             case "update":
+                updateHero($_POST['id'], $_POST['name'], $_POST['tagline']);
                 echo "updating a hero";
                 break;
             case "delete":
+                deleteHero($_GET['id']);
                 echo "deleting a hero";
                 break;
             default:
