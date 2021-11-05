@@ -1,6 +1,4 @@
 <?php
-    echo "start of script";
-    echo "<br >";
     function createNewDatabase(){
         $servername = "localhost";
         $username = "root";
@@ -22,34 +20,29 @@
 
     createNewDatabase();
 
-
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "mySuperheroes";
+    
+    // Create connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
 
      // Create
     function createHero($name, $tagline, $bio) {
-        echo "hello";
         echo ("<h1>CREATE</h1><pre>" . $name. $tagline. $bio . "</pre>");
         if(isset($_GET['name']) && isset($_GET['tagline']) && isset($_GET['bio'])){
             if(strlen($name) <= 1) {
                 echo "name must be at least 2 characters";
-            } else {
-                
-            }
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            $dbname = "mySuperheroes";
-            
-            // Create connection
-            $conn = new mysqli($servername, $username, $password, $dbname);
-            // Check connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-    
+            } 
             $SQL = "INSERT INTO heroes (name, about_me, biography) VALUES ('$name', '$tagline', '$bio')";
     
-            
+            global $conn;
             if ($conn->query($SQL) === TRUE) {
                 echo "New Hero created successfully";
                 echo '<br>';
@@ -66,18 +59,8 @@
 
     // Read
     function readAllHeroes() {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mySuperheroes";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
+        echo ("<h1>READ</h1>");
+        global $conn;
         $SQL = "SELECT * FROM heroes";
         $result = $conn->query($SQL);
 
@@ -94,19 +77,8 @@
 
     // Update
     function updateHero($id, $name, $tagline) {
-        echo ("<h1>UPDATE</h1><pre>" . $name. $tagline. $id . "</pre>");
-
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mySuperheroes";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+        echo ("<h1>UPDATE</h1>");
+        global $conn;
 
         $SQL = "UPDATE heroes SET about_me='$tagline', name='$name' WHERE heroes.id=$id";
 
@@ -121,18 +93,8 @@
 
     // Delete
     function deleteHero($id) {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mySuperheroes";
-        
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        };
-
+        echo ("<h1>DELETE</h1>");
+        global $conn;
         // sql to delete a record
         $SQL = "DELETE FROM heroes WHERE id = '$id'";
 
@@ -145,24 +107,10 @@
         mysqli_close($conn);
     };
 
-    // echo "end of script"
-
     // Read heroes, about and abilities
     function readHeroAbilities() {
-        echo ("<h1>DISPLAY</h1><pre>" . "</pre>");
-
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mySuperheroes";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
+        echo ("<h1>DISPLAY</h1>");
+        global $conn;
         $SQL = "SELECT heroes.name, heroes.about_me,
                 GROUP_CONCAT(ability_type.ability SEPARATOR ' , ') AS powers
                 FROM heroes
@@ -183,7 +131,6 @@
     }
 
     $action = $_GET['action'];
-
 
     if($action != "") {
         switch($action) {
