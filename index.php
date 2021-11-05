@@ -15,7 +15,7 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
-        echo "Connected Successfully";
+        echo "Initial Connection Successful";
 
         mysqli_close($conn); 
     }
@@ -24,40 +24,44 @@
 
 
 
-    $action = $_GET['action'];
-
-
-
 
      // Create
     function createHero($name, $tagline, $bio) {
         echo "hello";
         echo ("<h1>CREATE</h1><pre>" . $name. $tagline. $bio . "</pre>");
-
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mySuperheroes";
-        
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
+        if(isset($_GET['name']) && isset($_GET['tagline']) && isset($_GET['bio'])){
+            if(strlen($name) <= 1) {
+                echo "name must be at least 2 characters";
+            } else {
+                
+            }
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "mySuperheroes";
+            
+            // Create connection
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            // Check connection
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+    
+            $SQL = "INSERT INTO heroes (name, about_me, biography) VALUES ('$name', '$tagline', '$bio')";
+    
+            
+            if ($conn->query($SQL) === TRUE) {
+                echo "New Hero created successfully";
+                echo '<br>';
+            }
+            else {
+                echo "Error: " . $SQL . "<br>" . $conn->error;
+            }
+    
+            mysqli_close($conn); 
+        } else {
+            echo "ERROR: To create a hero you need a name, tagline and bio";
         }
-
-        $SQL = "INSERT INTO heroes (name, about_me, biography) VALUES ('$name', '$tagline', '$bio')";
-
-        $conn;
-        if ($conn->query($SQL) === TRUE) {
-            echo "New Hero created successfully";
-            echo '<br>';
-        }
-        else {
-            echo "Error: " . $SQL . "<br>" . $conn->error;
-        }
-
-        mysqli_close($conn); 
     };
 
     // Read
@@ -88,8 +92,9 @@
         $conn->close();
     }
 
-    // // Update
+    // Update
     function updateHero($id, $name, $tagline) {
+        echo ("<h1>UPDATE</h1><pre>" . $name. $tagline. $id . "</pre>");
 
         $servername = "localhost";
         $username = "root";
@@ -111,11 +116,41 @@
             echo "Error updating record: " . $conn->error;
         }
 
-        mysqli_close($conn); 
+        mysqli_close($conn);
     };
 
-    // // Delete
+    // Delete
     function deleteHero($id) {
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "mySuperheroes";
+        
+        // Create connection
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        };
+
+        // sql to delete a record
+        $SQL = "DELETE FROM heroes WHERE id = '$id'";
+
+        if ($conn->query($SQL) === TRUE) {
+            echo "Record deleted successfully";
+        } else {
+            echo "Error deleting record: " . $conn->error;
+        }
+
+        mysqli_close($conn);
+    };
+
+    // echo "end of script"
+
+    // Read heroes, about and abilities
+    function readHeroAbilities() {
+        echo ("<h1>DISPLAY</h1><pre>" . "</pre>");
+
         $servername = "localhost";
         $username = "root";
         $password = "";
@@ -128,46 +163,56 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
-        // sql to delete a record
-        $SQL = "DELETE FROM heroes WHERE id = '$id'";
-
-        if ($conn->query($SQL) === TRUE) {
-            echo "Record deleted successfully";
+        $SQL = "SELECT heroes.name, heroes.about_me,
+                GROUP_CONCAT(ability_type.ability SEPARATOR ' , ') AS powers
+                FROM heroes
+                INNER JOIN abilities ON abilities.hero_id=heroes.id
+                INNER JOIN ability_type ON ability_type.id=abilities.ability_id
+                GROUP BY heroes.name";
+        
+        $result = $conn->query($SQL);
+        if ($result->num_rows > 0) {
+        // output data of each row
+            while($row = $result->fetch_assoc()) {
+                echo "Name: " . $row["name"]. " " . $row["about_me"]. " " . $row["powers"]. "<br>";
+            }
         } else {
-            echo "Error deleting record: " . $conn->error;
+            echo "0 results";
         }
-    };
+        $conn->close();
+    }
 
-    // echo "end of script"
+    $action = $_GET['action'];
 
 
     if($action != "") {
         switch($action) {
             case "create":
-                if(isset($_GET['name']) && isset($_GET['tagline']) && isset($_GET['bio'])){
-                    createHero($_POST['name'], $_POST['tagline'], $_POST['bio']);
-                    echo "Congrats hero has name, tagline, and bio!";
-                    
-                } else {
-                    echo "create a hero needs name, tagline and bio";
-                }
+                createHero($_GET['name'], $_GET['tagline'], $_GET['bio']);
+                echo "Congrats hero has name, tagline, and bio!";
                 break;
             case "read":
                 readAllHeroes();
                 echo "display all heroes";
                 break;
             case "update":
-                updateHero($_POST['id'], $_POST['name'], $_POST['tagline']);
-                echo "updating a hero";
+                if(isset($_GET['id']) && isset($_GET['name']) && isset($_GET['tagline'])) {
+                    updateHero($_POST['id'], $_POST['name'], $_POST['tagline']);
+                    echo "updating a hero";
+                } else {
+                    echo "ERROR: To update a hero, you need an id, name, and tagline";
+                }
                 break;
             case "delete":
                 deleteHero($_GET['id']);
                 echo "deleting a hero";
                 break;
+            case "readPowers":
+                readHeroAbilities();
+                echo "displaying heroes and abilities";
+                break;
             default:
-                echo "Found nothing!";
+                echo "ERROR: Please give action a value!";
         }
     }
-
-
 ?>
